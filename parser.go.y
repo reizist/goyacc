@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"fmt"
+	"math"
 )
 
 type Expression interface{}
@@ -67,7 +68,10 @@ expr
 	{
 		$$ = BinOpExpr{left: $1, operator: '/', right: $3}
 	}
-
+	| expr '^' expr
+	{
+		$$ = BinOpExpr{left: $1, operator: '^', right: $3}
+	}
 %%
 
 type Lexer struct {
@@ -103,6 +107,8 @@ func Eval(e Expression) int {
 			return left * right
 		case '/':
 			return left / right
+		case '^':
+			return int(math.Pow(float64(left), float64(right)))
 		}
 	case NumExpr:
 		num, _ := strconv.Atoi(e.(NumExpr).literal)
