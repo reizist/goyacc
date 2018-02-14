@@ -36,9 +36,11 @@ type BinOpExpr struct {
 %token<token> NUMBER
 
 %left '+', '-'
-%left '*', '/'
+%left '*', '/', '%'
+%left '^'
 
 %%
+
 
 program
 	: expr
@@ -72,6 +74,14 @@ expr
 	{
 		$$ = BinOpExpr{left: $1, operator: '^', right: $3}
 	}
+	| expr '%' expr
+	{
+		$$ = BinOpExpr{left: $1, operator: '%', right: $3}
+	}
+	| '(' expr ')'
+    {
+		$$ = $2
+    }
 %%
 
 type Lexer struct {
@@ -109,6 +119,8 @@ func Eval(e Expression) int {
 			return left / right
 		case '^':
 			return int(math.Pow(float64(left), float64(right)))
+		case '%':
+			return left % right
 		}
 	case NumExpr:
 		num, _ := strconv.Atoi(e.(NumExpr).literal)
